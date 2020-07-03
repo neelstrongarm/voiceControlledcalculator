@@ -7,9 +7,20 @@ r = sr.Recognizer()
 
 app = Flask(__name__)
 
-# @app.route('/', methods= ["GET", "POST"])
-# def index():
-#     pass
+@app.route('/', methods=["GET", "POST"])
+def index():
+    if request.method == 'GET':
+        return render_template("index.html")
+
+
+@app.route('/output', methods=["GET", "POST"])
+def output():
+    with sr.Microphone() as source:
+        audio = r.listen(source)
+        inp = r.recognize_google(audio)
+        # print(inp)
+        fin = operation(inp.lower())
+        return render_template("output.html", ans = inp, fin = fin)
 
 def isDigit(x):
     try:
@@ -24,6 +35,12 @@ def numbers(inp):
     for i in inp.split():
         if isDigit(i):
             num.append(float(i))
+        if "%" in i:
+            num.append(float(i[:len(i)-1]))
+        if "/" in i:
+            x = list(map(float, i.split("/")))
+            num.extend(x)
+    print(num)
     return num
 
 def voice_out(num_mytext):
@@ -38,24 +55,29 @@ def voice_out(num_mytext):
     playsound.playsound(filename)
     print(mytext)
 
-def operation(inp):
+def operation(inp):    
+    inp = inp.replace("minus ", " -")
+    inp = inp.replace("negative ", " -")
+    print(inp)
     num = numbers(inp)
-    if "mod" in inp or "modulus" in inp or "modulo" in inp or "remainder" in inp:
+    if "percent" in inp or "percentage" in inp or "%" in inp:
+        voice_out(percent(num))
+    elif "mod" in inp or "modulus" in inp or "modulo" in inp or "remainder" in inp:
         voice_out(mod(num))
     elif "root" in inp:
         voice_out(sq_root(num))
     elif "square" in inp or "itself" in inp:
         voice_out(square(num))
     elif "add" in inp or "+" in inp or "plus" in inp:
-        voice_out(add(num))      
-    elif "subtract" in inp and "from" in inp:
-        voice_out(subtract(num,flag=True)) #if flag is true num[1] - num[0]
-    elif "-" in inp or "minus" in inp:
-        voice_out(subtract(num,flag=False)) #if flag is flase num[0] - num[1]    
+        voice_out(add(num))       
     elif "multiply" in inp or "times" in inp or "multiplied" in inp or "into" in inp or "x" in inp or "*" in inp:
         voice_out(multiply(num))    
-    elif "divide" in inp or "by" in inp or "/" in inp or "bye":
+    elif "divide" in inp or "by" in inp or "/" in inp or "bye" in inp:
         voice_out(divide(num))
+    elif "subtract" in inp and "from" in inp:
+        voice_out(subtract(num,flag=True)) #if flag is true num[1] - num[0]  
+    elif "-" in inp or "minus" in inp:
+        voice_out(subtract(num,flag=False)) #if flag is flase num[0] - num[1] 
 
 def add(num):
     total = 0
@@ -71,6 +93,7 @@ def subtract(num,flag):
     return total
 
 def multiply(num):
+    
     total = 1
     for i in num:
         total *= i
@@ -92,9 +115,13 @@ def square(num):
     total = num[0] **2
     return total
 
-with sr.Microphone() as source:
-    print("Kuch toh bolo, sharma kyu rahe hai")
-    audio = r.listen(source)
-    inp = r.recognize_google(audio)
-    print(inp)
-    operation(inp.lower())
+def percent(num):
+    total = num[0] * num[1] / 100
+    return total
+
+# with sr.Microphone() as source:
+#     print("Kuch toh bolo, sharma kyu rahe ho")
+#     audio = r.listen(source)
+#     inp = r.recognize_google(audio)
+#     print(inp)
+#     operation(inp.lower())
