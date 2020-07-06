@@ -1,6 +1,6 @@
 # Voice Controlled Calculator
 
-A Web based Voice Controlled Calculator using Google text-to-speech API. Beside basic arithmetic operations, it can also perform operations like percentage and remainder calculation. 
+A Web based Voice Controlled Calculator using Google text-to-speech API. Apart from basic arithmetic operations, it can perform operations like percentage and remainder calculations. Beside a voice calculator that speaks out the answer for the problem inputted, there's a normal calculator with the same operations.
 
 ## Getting Started
 
